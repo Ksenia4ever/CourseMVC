@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CourseDomain/CourseDomain.csproj" />
+  <Project Path="CourseInfrastructure/CourseInfrastructure.csproj" Id="326e56b5-d164-44b0-8482-1a8b6650daab" />
+</Solution>
