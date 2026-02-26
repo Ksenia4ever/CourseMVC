@@ -36,7 +36,6 @@ public partial class DbCourseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresEnum("account_role", new[] { "Admin", "Teacher", "Student" });
 
         modelBuilder.Entity<Account>(entity =>
         {
