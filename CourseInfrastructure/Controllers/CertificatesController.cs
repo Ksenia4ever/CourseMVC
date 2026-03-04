@@ -22,7 +22,8 @@ namespace CourseInfrastructure.Controllers
         // GET: Certificates
         public async Task<IActionResult> Index(int? id, string? name)
         {
-            if (id == null) return RedirectToAction("Accounts", "Index");
+            //if (id == null) return RedirectToAction("Accounts", "Index");
+            if (id == null) return RedirectToAction("Index", "Accounts");
             //перегляд вже отриманіх сертифікатів
             ViewBag.AccountId = id;
             ViewBag.AccountName = name;
@@ -53,12 +54,13 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Certificates/Create
-        public IActionResult Create()
-        {
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Name");
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description");
-            return View();
-        }
+        //public IActionResult Create()
+        //{
+        //    ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Name");
+        //    ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description");
+        //    return View();
+        //}
+        // 2 varient
         //public IActionResult Create(int accountId)
         //{
         //    ViewBag.AccountId = accountId;
@@ -72,23 +74,37 @@ namespace CourseInfrastructure.Controllers
         //    return View();
         //}
 
+        public IActionResult Create(int id, string? name)
+        {
+            // id = AccountId
+            ViewBag.AccountId = id;
+            ViewBag.AccountName = name;
+
+            // В select показывай название курса (НЕ Description)
+            // Если у Course поле с названием называется Title — замени "Title" на нужное
+            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Title");
+
+            return View();
+        }
+
         // POST: Certificates/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,CourseId,AccountId,Id")] Certificate certificate)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(certificate);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Name", certificate.AccountId);
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", certificate.CourseId);
-            return View(certificate);
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Title,Description,CourseId,AccountId,Id")] Certificate certificate)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(certificate);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Name", certificate.AccountId);
+        //    ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", certificate.CourseId);
+        //    return View(certificate);
+        //}
+        // 2 varient
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create(Certificate certificate)
@@ -116,6 +132,36 @@ namespace CourseInfrastructure.Controllers
 
         //    return RedirectToAction("Details", "Accounts", new { id = certificate.AccountId });
         //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Title,Description,CourseId,AccountId")] Certificate certificate)
+        {
+            // защита от дубля
+            bool exists = await _context.Certificates.AnyAsync(c =>
+                c.AccountId == certificate.AccountId &&
+                c.CourseId == certificate.CourseId);
+
+            if (exists)
+            {
+                ModelState.AddModelError("", "Цей акаунт вже отримав сертифікат за цей курс.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(certificate);
+                await _context.SaveChangesAsync();
+
+                // возвращаемся к списку сертификатов этого аккаунта
+                return RedirectToAction(nameof(Index), new { id = certificate.AccountId });
+            }
+
+            // вернуть select заново
+            ViewBag.AccountId = certificate.AccountId;
+            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Title", certificate.CourseId);
+
+            return View(certificate);
+        }
 
         // GET: Certificates/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -197,14 +243,24 @@ namespace CourseInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var certificate = await _context.Certificates.FindAsync(id);
-            if (certificate != null)
-            {
-                _context.Certificates.Remove(certificate);
-            }
+            //var certificate = await _context.Certificates.FindAsync(id);
+            //if (certificate != null)
+            //{
+            //    _context.Certificates.Remove(certificate);
+            //}
 
+            //await _context.SaveChangesAsync();
+            //return RedirectToAction(nameof(Index));
+
+            var certificate = await _context.Certificates.FindAsync(id);
+            if (certificate == null) return RedirectToAction("Index", "Accounts");
+
+            int accId = certificate.AccountId;
+
+            _context.Certificates.Remove(certificate);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction(nameof(Index), new { id = accId });
         }
 
         private bool CertificateExists(int id)

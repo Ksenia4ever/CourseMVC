@@ -20,5 +20,20 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+
+    <a asp-controller="Certificates"
+       asp-action="Index"
+       asp-route-id="@Model!.Id"
+       asp-route-name="@Model!.Name">
+        Сертифікати акаунта
+    </a> |
+
+    <a asp-controller="Certificates"
+       asp-action="Create"
+       asp-route-id="@Model!.Id"
+       asp-route-name="@Model!.Name">
+        Додати сертифікат
+    </a> |
+
     <a asp-action="Index">Back to List</a>
 </div>
