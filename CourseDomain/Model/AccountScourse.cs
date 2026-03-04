@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CourseDomain.Model;
 
-public partial class AccountScourse : Entity
+public partial class AccountScourse 
 {
     public int AccountId { get; set; }
 

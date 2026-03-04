@@ -46,18 +46,21 @@ public partial class DbCourseContext : DbContext
 
         modelBuilder.Entity<AccountScourse>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("Account_Scourses_pkey");
+            entity.HasKey(e => new { e.AccountId, e.ScoreId }).HasName("Account_Scourses_pkey");
 
             entity.ToTable("Account_Scourses");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.AccountId).HasColumnName("AccountId");
+            entity.Property(e => e.ScoreId).HasColumnName("ScoreId");
 
             entity.HasOne(d => d.Account).WithMany(p => p.AccountScourses)
                 .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("AccountFk");
 
             entity.HasOne(d => d.Score).WithMany(p => p.AccountScourses)
                 .HasForeignKey(d => d.ScoreId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("ScoreFk");
         });
 
@@ -96,21 +99,22 @@ public partial class DbCourseContext : DbContext
 
         modelBuilder.Entity<CourseAccount>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("Course_Accounts_pkey");
+            entity.HasKey(e => new { e.CourseId, e.AccountId }).HasName("Course_Accounts_pkey");
 
             entity.ToTable("Course_Accounts");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CourseId).HasColumnName("CourseId");
+            entity.Property(e => e.AccountId).HasColumnName("AccountId");
 
             entity.HasOne(d => d.Account).WithMany(p => p.CourseAccounts)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("AccountFk");
+                .HasConstraintName("Course_Accounts_AccountId_fkey");
 
             entity.HasOne(d => d.Course).WithMany(p => p.CourseAccounts)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("CourseFk");
+                .HasConstraintName("Course_Accounts_CourseId_fkey");
         });
 
         modelBuilder.Entity<Excercise>(entity =>

@@ -1,4 +1,4 @@
-﻿@model CourseDomain.Model.Course
+﻿@* @model CourseDomain.Model.Course
 
 @{
     ViewData["Title"] = "Details";
@@ -49,6 +49,257 @@
     </dl>
 </div>
 <div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+ 
+  // 2 varient
+@model CourseDomain.Model.Course
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Course</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Subject)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Subject)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Modified)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Modified)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Author.Name)
+        </dd>
+    </dl>
+</div>
+
+<hr />
+
+<div class="mt-4">
+    <h4>Зразок майбутнього сертифіката</h4>
+    <div style="border: 2px solid #6c757d; padding: 25px; background-color: #f8f9fa; border-radius: 10px; margin-top: 15px;">
+        <h2 style="text-align:center; margin-bottom:20px;">СЕРТИФІКАТ</h2>
+
+        <p style="font-size:18px;">
+            Виданий студенту: <strong>[Ім'я студента]</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            За успішне проходження курсу:
+            <strong>@Model.Title</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Предмет:
+            <strong>@Model.Subject</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Автор курсу:
+            <strong>@Model.Author?.Name</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Дата видачі:
+            <strong>[дата]</strong>
+        </p>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div> *@
+@model CourseDomain.Model.Course
+
+@{
+    ViewData["Title"] = "Інформація про курс";
+
+    var enrolled = Model.CourseAccounts?.Count ?? 0;
+    var certificates = Model.Certificates?.Count ?? 0;
+    var inProgress = enrolled - certificates;
+    if (inProgress < 0)
+    {
+        inProgress = 0;
+    }
+    var completed = certificates;
+
+    var maxValue = new[] { enrolled, inProgress, completed, certificates }.Max();
+    if (maxValue == 0)
+    {
+        maxValue = 1;
+    }
+
+    var enrolledWidth = enrolled * 300 / maxValue;
+    var inProgressWidth = inProgress * 300 / maxValue;
+    var completedWidth = completed * 300 / maxValue;
+    var certificatesWidth = certificates * 300 / maxValue;
+}
+
+<h1>Інформація про курс</h1>
+
+<div>
+    <h4>@Model.Title</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Subject)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Subject)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Modified)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Modified)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Author.Name)
+        </dd>
+    </dl>
+</div>
+
+<hr />
+
+<div class="mt-4">
+    <h4>Зразок майбутнього сертифіката</h4>
+    <div style="border: 2px solid #6c757d; padding: 25px; background-color: #f8f9fa; border-radius: 10px; margin-top: 15px;">
+        <h2 style="text-align:center; margin-bottom:20px;">СЕРТИФІКАТ</h2>
+
+        <p style="font-size:18px;">
+            Виданий студенту: <strong>[Ім'я студента]</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            За успішне проходження курсу:
+            <strong>@Model.Title</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Предмет:
+            <strong>@Model.Subject</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Автор курсу:
+            <strong>@Model.Author?.Name</strong>
+        </p>
+
+        <p style="font-size:18px;">
+            Дата видачі:
+            <strong>[дата]</strong>
+        </p>
+    </div>
+</div>
+
+<hr />
+
+<div class="mt-4">
+    <h4>Статистика курсу</h4>
+
+    <ul>
+        <li><strong>Записані на курс:</strong> @enrolled</li>
+        <li><strong>Проходять курс:</strong> @inProgress</li>
+        <li><strong>Завершили курс:</strong> @completed</li>
+        <li><strong>Отримали сертифікат:</strong> @certificates</li>
+    </ul>
+</div>
+
+<hr />
+
+<div class="mt-4">
+    <h4>Графік проходження курсу</h4>
+
+    <div style="max-width: 500px;">
+
+        <p><strong>Записані на курс:</strong> @enrolled</p>
+        <div style="background:#e9ecef; height:30px; margin-bottom:15px; border-radius:5px;">
+            <div style="background:#0d6efd; width:@(enrolledWidth)px; height:30px; border-radius:5px;"></div>
+        </div>
+
+        <p><strong>Проходять курс:</strong> @inProgress</p>
+        <div style="background:#e9ecef; height:30px; margin-bottom:15px; border-radius:5px;">
+            <div style="background:#fd7e14; width:@(inProgressWidth)px; height:30px; border-radius:5px;"></div>
+        </div>
+
+        <p><strong>Завершили курс:</strong> @completed</p>
+        <div style="background:#e9ecef; height:30px; margin-bottom:15px; border-radius:5px;">
+            <div style="background:#198754; width:@(completedWidth)px; height:30px; border-radius:5px;"></div>
+        </div>
+
+        <p><strong>Отримали сертифікат:</strong> @certificates</p>
+        <div style="background:#e9ecef; height:30px; margin-bottom:15px; border-radius:5px;">
+            <div style="background:#6f42c1; width:@(certificatesWidth)px; height:30px; border-radius:5px;"></div>
+        </div>
+
+    </div>
+</div>
+
+<div class="mt-3">
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

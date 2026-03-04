@@ -11,8 +11,9 @@ public partial class Course : Entity
     public string Title { get; set; } = null!;
 
     [Display(Name = "Інформація про курс")]
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; } 
 
+    [Required(ErrorMessage = "Поле не повинно бути порожнім")]
     public int AuthorId { get; set; }
 
     [Required(ErrorMessage = "Поле не повинно бути порожнім")]
@@ -27,9 +28,9 @@ public partial class Course : Entity
     [Display(Name = "Дата редагування")]
     public DateOnly Modified { get; set; }
 
-    [Required(ErrorMessage = "Поле не повинно бути порожнім")]
+   
     [Display(Name = "Код автора")]
-    public virtual Account Author { get; set; } = null!;
+    public virtual Account? Author { get; set; }
 
     public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
 

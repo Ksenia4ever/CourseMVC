@@ -20,13 +20,38 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Courses
+        //public async Task<IActionResult> Index()
+        //{
+        //    var dbCourseContext = _context.Courses.Include(c => c.Author);
+        //    return View(await dbCourseContext.ToListAsync());
+        //}
         public async Task<IActionResult> Index()
         {
-            var dbCourseContext = _context.Courses.Include(c => c.Author);
+            var dbCourseContext = _context.Courses
+                .Include(c => c.Author)
+                .OrderBy(c => c.Title);
+
             return View(await dbCourseContext.ToListAsync());
         }
 
         // GET: Courses/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var course = await _context.Courses
+        //        .Include(c => c.Author)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (course == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(course);
+        //}
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -36,7 +61,10 @@ namespace CourseInfrastructure.Controllers
 
             var course = await _context.Courses
                 .Include(c => c.Author)
+                .Include(c => c.Certificates)
+                .Include(c => c.CourseAccounts)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (course == null)
             {
                 return NotFound();
@@ -55,16 +83,33 @@ namespace CourseInfrastructure.Controllers
         // POST: Courses/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(course);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
+        //    return View(course);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
+        public async Task<IActionResult> Create([Bind("Title,Description,AuthorId,Subject")] Course course)
         {
+            course.Created = DateOnly.FromDateTime(DateTime.Today);
+            course.Modified = DateOnly.FromDateTime(DateTime.Today);
+
             if (ModelState.IsValid)
             {
                 _context.Add(course);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
             return View(course);
         }
@@ -89,14 +134,48 @@ namespace CourseInfrastructure.Controllers
         // POST: Courses/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, [Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
+        //{
+        //    if (id != course.Id)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(course);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!CourseExists(course.Id))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
+        //    return View(course);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,AuthorId,Subject,Created")] Course course)
         {
             if (id != course.Id)
             {
                 return NotFound();
             }
+
+            course.Modified = DateOnly.FromDateTime(DateTime.Today);
 
             if (ModelState.IsValid)
             {
@@ -118,6 +197,7 @@ namespace CourseInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
             return View(course);
         }
