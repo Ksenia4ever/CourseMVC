@@ -7,26 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CourseDomain.Model;
 using CourseInfrastructure;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CourseInfrastructure.Controllers
 {
-    public class AccountsController : Controller
+    public class ExcercisesController : Controller
     {
         private readonly DbCourseContext _context;
 
-        public AccountsController(DbCourseContext context)
+        public ExcercisesController(DbCourseContext context)
         {
             _context = context;
         }
 
-        // GET: Accounts
+        // GET: Excercises
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Accounts.ToListAsync());
+            var dbCourseContext = _context.Excercises.Include(e => e.Course);
+            return View(await dbCourseContext.ToListAsync());
         }
 
-        // GET: Accounts/Details/5
+        // GET: Excercises/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,43 +34,42 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts
+            var excercise = await _context.Excercises
+                .Include(e => e.Course)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (account == null)
+            if (excercise == null)
             {
                 return NotFound();
             }
 
-            // return View(account)
-            return RedirectToAction("Index", "Certificates", new { id = account.Id, name = account.Name });
-
+            return View(excercise);
         }
 
-
-
-        // GET: Accounts/Create
+        // GET: Excercises/Create
         public IActionResult Create()
         {
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description");
             return View();
         }
 
-        // POST: Accounts/Create
+        // POST: Excercises/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Create([Bind("Title,TaskDescription,Questions,AnswerVarients,Answer,CourseId,Created,Modified,Id")] Excercise excercise)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(account);
+                _context.Add(excercise);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(account);
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
+            return View(excercise);
         }
 
-        // GET: Accounts/Edit/5
+        // GET: Excercises/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,22 +77,23 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
+            var excercise = await _context.Excercises.FindAsync(id);
+            if (excercise == null)
             {
                 return NotFound();
             }
-            return View(account);
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
+            return View(excercise);
         }
 
-        // POST: Accounts/Edit/5
+        // POST: Excercises/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Edit(int id, [Bind("Title,TaskDescription,Questions,AnswerVarients,Answer,CourseId,Created,Modified,Id")] Excercise excercise)
         {
-            if (id != account.Id)
+            if (id != excercise.Id)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace CourseInfrastructure.Controllers
             {
                 try
                 {
-                    _context.Update(account);
+                    _context.Update(excercise);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AccountExists(account.Id))
+                    if (!ExcerciseExists(excercise.Id))
                     {
                         return NotFound();
                     }
@@ -118,10 +118,11 @@ namespace CourseInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(account);
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
+            return View(excercise);
         }
 
-        // GET: Accounts/Delete/5
+        // GET: Excercises/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,34 +130,35 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts
+            var excercise = await _context.Excercises
+                .Include(e => e.Course)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (account == null)
+            if (excercise == null)
             {
                 return NotFound();
             }
 
-            return View(account);
+            return View(excercise);
         }
 
-        // POST: Accounts/Delete/5
+        // POST: Excercises/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var account = await _context.Accounts.FindAsync(id);
-            if (account != null)
+            var excercise = await _context.Excercises.FindAsync(id);
+            if (excercise != null)
             {
-                _context.Accounts.Remove(account);
+                _context.Excercises.Remove(excercise);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AccountExists(int id)
+        private bool ExcerciseExists(int id)
         {
-            return _context.Accounts.Any(e => e.Id == id);
+            return _context.Excercises.Any(e => e.Id == id);
         }
     }
 }

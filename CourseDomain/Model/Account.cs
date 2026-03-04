@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CourseDomain.Model;
 
 public partial class Account : Entity
 {
+    [Required(ErrorMessage = "Поле не повинно бути порожнім")]
+    [Display(Name = "Ім'я")]
     public string Name { get; set; } = null!;
 
     public virtual ICollection<AccountScourse> AccountScourses { get; set; } = new List<AccountScourse>();

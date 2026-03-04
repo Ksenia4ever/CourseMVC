@@ -65,16 +65,21 @@ public partial class DbCourseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("Certificates_pkey");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            // entity.Property(e => e.Id).ValueGeneratedOnAdd(); // вместо ValueGeneratedNever()
+            entity.Property(e => e.Id).UseIdentityColumn(); // или ValueGeneratedOnAdd()
+
+            entity.HasIndex(e => new { e.AccountId, e.CourseId })
+                  .IsUnique()
+                  .HasDatabaseName("UQ_Certificates_Account_Course");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Certificates)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("AccountFk");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Certificates)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("CourseFk");
         });
 

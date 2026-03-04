@@ -7,26 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CourseDomain.Model;
 using CourseInfrastructure;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CourseInfrastructure.Controllers
 {
-    public class AccountsController : Controller
+    public class ScoresController : Controller
     {
         private readonly DbCourseContext _context;
 
-        public AccountsController(DbCourseContext context)
+        public ScoresController(DbCourseContext context)
         {
             _context = context;
         }
 
-        // GET: Accounts
+        // GET: Scores
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Accounts.ToListAsync());
+            var dbCourseContext = _context.Scores.Include(s => s.Excersice);
+            return View(await dbCourseContext.ToListAsync());
         }
 
-        // GET: Accounts/Details/5
+        // GET: Scores/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,43 +34,42 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts
+            var score = await _context.Scores
+                .Include(s => s.Excersice)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (account == null)
+            if (score == null)
             {
                 return NotFound();
             }
 
-            // return View(account)
-            return RedirectToAction("Index", "Certificates", new { id = account.Id, name = account.Name });
-
+            return View(score);
         }
 
-
-
-        // GET: Accounts/Create
+        // GET: Scores/Create
         public IActionResult Create()
         {
+            ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer");
             return View();
         }
 
-        // POST: Accounts/Create
+        // POST: Scores/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Create([Bind("ExcersiceId,Value,Id")] Score score)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(account);
+                _context.Add(score);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(account);
+            ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
+            return View(score);
         }
 
-        // GET: Accounts/Edit/5
+        // GET: Scores/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,22 +77,23 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
+            var score = await _context.Scores.FindAsync(id);
+            if (score == null)
             {
                 return NotFound();
             }
-            return View(account);
+            ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
+            return View(score);
         }
 
-        // POST: Accounts/Edit/5
+        // POST: Scores/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Edit(int id, [Bind("ExcersiceId,Value,Id")] Score score)
         {
-            if (id != account.Id)
+            if (id != score.Id)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace CourseInfrastructure.Controllers
             {
                 try
                 {
-                    _context.Update(account);
+                    _context.Update(score);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AccountExists(account.Id))
+                    if (!ScoreExists(score.Id))
                     {
                         return NotFound();
                     }
@@ -118,10 +118,11 @@ namespace CourseInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(account);
+            ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
+            return View(score);
         }
 
-        // GET: Accounts/Delete/5
+        // GET: Scores/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,34 +130,35 @@ namespace CourseInfrastructure.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts
+            var score = await _context.Scores
+                .Include(s => s.Excersice)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (account == null)
+            if (score == null)
             {
                 return NotFound();
             }
 
-            return View(account);
+            return View(score);
         }
 
-        // POST: Accounts/Delete/5
+        // POST: Scores/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var account = await _context.Accounts.FindAsync(id);
-            if (account != null)
+            var score = await _context.Scores.FindAsync(id);
+            if (score != null)
             {
-                _context.Accounts.Remove(account);
+                _context.Scores.Remove(score);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AccountExists(int id)
+        private bool ScoreExists(int id)
         {
-            return _context.Accounts.Any(e => e.Id == id);
+            return _context.Scores.Any(e => e.Id == id);
         }
     }
 }
