@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Статистика системи";
+}
+
+<h2>Загальна статистика системи</h2>
+
+<div class="row">
+    <div class="col-md-10">
+        <div id="systemStatsChart"></div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawSystemStatsChart);
+
+        function drawSystemStatsChart() {
+        fetch('/api/charts/systemStats')
+        .then(response => response.json())
+        .then(data => {
+        const dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Категорія');
+        dataTable.addColumn('number', 'Кількість');
+
+        data.forEach(item => {
+        dataTable.addRow([item.label, item.count]);
+        });
+
+        const options = {
+        title: 'Загальна статистика системи',
+        width: 800,
+        height: 450,
+        legend: { position: 'none' }
+        };
+
+        const chart = new google.visualization.ColumnChart(
+        document.getElementById('systemStatsChart')
+        );
+
+        chart.draw(dataTable, options);
+        });
+        }
+    </script>
+}

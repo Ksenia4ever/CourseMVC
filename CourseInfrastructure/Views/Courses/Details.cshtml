@@ -257,6 +257,15 @@
 </div>
 
 <hr />
+<h3>Статистика курсу</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <div id="courseDetailsStatsChart"></div>
+    </div>
+</div>
+
+@* <hr />
 
 <div class="mt-4">
     <h4>Статистика курсу</h4>
@@ -298,8 +307,46 @@
 
     </div>
 </div>
-
+ *@
 <div class="mt-3">
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawCourseDetailsStatsChart);
+
+        function drawCourseDetailsStatsChart() {
+        const courseId = @Model.Id;
+
+        fetch('/api/charts/courseDetailsStats/' + courseId)
+        .then(response => response.json())
+        .then(data => {
+        const dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Показник');
+        dataTable.addColumn('number', 'Кількість');
+
+        data.forEach(item => {
+        dataTable.addRow([item.label, item.count]);
+        });
+
+        const options = {
+        title: 'Статистика курсу',
+        width: 600,
+        height: 400,
+        legend: { position: 'none' }
+        };
+
+        const chart = new google.visualization.ColumnChart(
+        document.getElementById('courseDetailsStatsChart')
+        );
+
+        chart.draw(dataTable, options);
+        });
+        }
+    </script>
+}
