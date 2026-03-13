@@ -257,7 +257,7 @@
 </div>
 
 <hr />
-<h3>Статистика курсу</h3>
+<h3>Кількість отриманих сертифікатів за роками</h3>
 
 <div class="row">
     <div class="col-md-8">
@@ -318,25 +318,25 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawCourseDetailsStatsChart);
+        google.charts.setOnLoadCallback(drawCertificatesByYearChart);
 
-        function drawCourseDetailsStatsChart() {
+        function drawCertificatesByYearChart() {
         const courseId = @Model.Id;
 
-        fetch('/api/charts/courseDetailsStats/' + courseId)
+        fetch('/api/charts/certificatesByYearForCourse/' + courseId)
         .then(response => response.json())
         .then(data => {
         const dataTable = new google.visualization.DataTable();
-        dataTable.addColumn('string', 'Показник');
-        dataTable.addColumn('number', 'Кількість');
+        dataTable.addColumn('string', 'Рік');
+        dataTable.addColumn('number', 'Кількість сертифікатів');
 
         data.forEach(item => {
-        dataTable.addRow([item.label, item.count]);
+        dataTable.addRow([item.year, item.count]);
         });
 
         const options = {
-        title: 'Статистика курсу',
-        width: 600,
+        title: 'Кількість отриманих сертифікатів за роками',
+        width: 700,
         height: 400,
         legend: { position: 'none' }
         };

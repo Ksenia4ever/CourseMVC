@@ -149,6 +149,7 @@ namespace CourseInfrastructure.Controllers
 
             if (ModelState.IsValid)
             {
+                certificate.IssuedDate = DateTime.Now;
                 _context.Add(certificate);
                 await _context.SaveChangesAsync();
 

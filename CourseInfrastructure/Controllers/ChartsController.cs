@@ -15,20 +15,19 @@ namespace CourseMVC.Controllers
             _context = context;
         }
 
-        [HttpGet("courseDetailsStats/{courseId}")]
-        public async Task<JsonResult> GetCourseDetailsStatsAsync(int courseId, CancellationToken cancellationToken)
+        [HttpGet("certificatesByYearForCourse/{courseId}")]
+        public async Task<JsonResult> GetCertificatesByYearForCourseAsync(int courseId, CancellationToken cancellationToken)
         {
-            var excercisesCount = await _context.Excercises
-                .CountAsync(e => e.CourseId == courseId, cancellationToken);
-
-            var certificatesCount = await _context.Certificates
-                .CountAsync(c => c.CourseId == courseId, cancellationToken);
-
-            var result = new[]
-            {
-                new { label = "Вправи", count = excercisesCount },
-                new { label = "Сертифікати", count = certificatesCount }
-            };
+            var result = await _context.Certificates
+                .Where(c => c.CourseId == courseId)
+                .GroupBy(c => c.IssuedDate.Year)
+                .Select(group => new
+                {
+                    year = group.Key.ToString(),
+                    count = group.Count()
+                })
+                .OrderBy(x => x.year)
+                .ToListAsync(cancellationToken);
 
             return new JsonResult(result);
         }

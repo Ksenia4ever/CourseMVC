@@ -2,15 +2,14 @@
 
 @{
     ViewData["Title"] = "Сертифікати аккаунту";
-
 }
 
 <h1>Сертифікати аккаунту @ViewBag.AccountName</h1>
 
 <p>
-    @Html.ActionLink("Додати новий сертифікат", "Create", new {accountId=ViewBag.AccountId})
-    
+    @Html.ActionLink("Додати новий сертифікат", "Create", new { accountId = ViewBag.AccountId })
 </p>
+
 <table class="table">
     <thead>
         <tr>
@@ -19,6 +18,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                Дата видачі
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Account)
@@ -30,26 +32,30 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Account.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Course.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @item.IssuedDate.ToString("dd.MM.yyyy")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Description)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

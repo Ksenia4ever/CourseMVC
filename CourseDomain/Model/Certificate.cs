@@ -22,8 +22,10 @@ public partial class Certificate : Entity
     [Display(Name = "Код аккаунту")]
     public int AccountId { get; set; }
 
-   
-   // [Display(Name = "Код аккаунту")]
+    public DateTime IssuedDate { get; set; }
+
+
+    // [Display(Name = "Код аккаунту")]
     public virtual Account Account { get; set; } = null!;
 
     

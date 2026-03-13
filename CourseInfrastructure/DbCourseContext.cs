@@ -84,6 +84,9 @@ public partial class DbCourseContext : DbContext
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("CourseFk");
+            entity.Property(e => e.IssuedDate)
+                .HasColumnName("IssuedDate")
+                .HasColumnType("timestamp without time zone");
         });
 
         modelBuilder.Entity<Course>(entity =>
