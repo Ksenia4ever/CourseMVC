@@ -37,6 +37,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Author)
             </th>
+            <th>
+                Підписка
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -62,11 +65,38 @@
                 @Html.DisplayFor(modelItem => item.Author.Name)
                 
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+                <td>
+                    @{
+                        var currentAccountId = ViewBag.CurrentAccountId != null
+                            ? (int?)ViewBag.CurrentAccountId
+                            : null;
+                        var isSubscribed = currentAccountId != null &&
+                            item.CourseAccounts.Any(ca => ca.AccountId == currentAccountId);
+                    }
+
+                    <form asp-action="ToggleSubscription" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@item.Id" />
+
+                        @if (isSubscribed)
+                        {
+                            <button type="submit" class="btn btn-danger">
+                                Ви підписані
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-outline-secondary">
+                                Підписатися
+                            </button>
+                        }
+                    </form>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
         </tr>
 }
     </tbody>

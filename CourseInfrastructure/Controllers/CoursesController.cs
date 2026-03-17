@@ -27,13 +27,16 @@ namespace CourseInfrastructure.Controllers
         //}
         public async Task<IActionResult> Index()
         {
+            var currentAccountId = HttpContext.Session.GetInt32("CurrentAccountId");
+            ViewBag.CurrentAccountId = currentAccountId;
+
             var dbCourseContext = _context.Courses
                 .Include(c => c.Author)
+                .Include(c => c.CourseAccounts)
                 .OrderBy(c => c.Title);
 
             return View(await dbCourseContext.ToListAsync());
         }
-
         // GET: Courses/Details/5
         //public async Task<IActionResult> Details(int? id)
         //{
@@ -230,6 +233,40 @@ namespace CourseInfrastructure.Controllers
             if (course != null)
             {
                 _context.Courses.Remove(course);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleSubscription(int courseId)
+        {
+            var accountId = HttpContext.Session.GetInt32("CurrentAccountId");
+
+            if (accountId == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            var existingSubscription = await _context.CourseAccounts
+                .FirstOrDefaultAsync(ca => ca.CourseId == courseId && ca.AccountId == accountId.Value);
+
+            if (existingSubscription == null)
+            {
+                var subscription = new CourseAccount
+                {
+                    CourseId = courseId,
+                    AccountId = accountId.Value,
+                    SubscribedAt = DateTime.Now
+                };
+
+                _context.CourseAccounts.Add(subscription);
+            }
+            else
+            {
+                _context.CourseAccounts.Remove(existingSubscription);
             }
 
             await _context.SaveChangesAsync();

@@ -12,4 +12,7 @@ public partial class CourseAccount
     public virtual Account Account { get; set; } = null!;
 
     public virtual Course Course { get; set; } = null!;
+
+    public DateTime SubscribedAt { get; set; }
+
 }

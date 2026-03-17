@@ -257,7 +257,7 @@
 </div>
 
 <hr />
-<h3>Кількість отриманих сертифікатів за роками</h3>
+<h3>Кількість підписок на курс за місяцями</h3>
 
 <div class="row">
     <div class="col-md-8">
@@ -318,27 +318,31 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawCertificatesByYearChart);
+        google.charts.setOnLoadCallback(drawSubscriptionsByMonthChart);
 
-        function drawCertificatesByYearChart() {
+        function drawSubscriptionsByMonthChart() {
         const courseId = @Model.Id;
 
-        fetch('/api/charts/certificatesByYearForCourse/' + courseId)
+        fetch('/api/charts/subscriptionsByMonthForCourse/' + courseId)
         .then(response => response.json())
         .then(data => {
         const dataTable = new google.visualization.DataTable();
-        dataTable.addColumn('string', 'Рік');
-        dataTable.addColumn('number', 'Кількість сертифікатів');
+        dataTable.addColumn('string', 'Місяць');
+        dataTable.addColumn('number', 'Кількість підписок');
 
         data.forEach(item => {
-        dataTable.addRow([item.year, item.count]);
+        dataTable.addRow([item.label, item.count]);
         });
 
         const options = {
-        title: 'Кількість отриманих сертифікатів за роками',
-        width: 700,
+        title: 'Кількість підписок на курс за місяцями',
+        width: 800,
         height: 400,
-        legend: { position: 'none' }
+        legend: { position: 'none' },
+        hAxis: {
+        slantedText: true,
+        slantedTextAngle: 45
+        }
         };
 
         const chart = new google.visualization.ColumnChart(

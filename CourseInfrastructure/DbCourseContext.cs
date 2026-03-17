@@ -36,12 +36,18 @@ public partial class DbCourseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.Entity<Account>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("Accounts_pkey");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.Property(e => e.Email)
+                .HasColumnName("Email");
+
+            entity.HasIndex(e => e.Email)
+                .IsUnique()
+                .HasDatabaseName("UQ_Accounts_Email");
         });
 
         modelBuilder.Entity<AccountScourse>(entity =>
@@ -109,6 +115,10 @@ public partial class DbCourseContext : DbContext
             entity.Property(e => e.CourseId).HasColumnName("CourseId");
             entity.Property(e => e.AccountId).HasColumnName("AccountId");
 
+            entity.Property(e => e.SubscribedAt)
+                .HasColumnName("SubscribedAt")
+                .HasColumnType("timestamp without time zone");
+
             entity.HasOne(d => d.Account).WithMany(p => p.CourseAccounts)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -119,7 +129,6 @@ public partial class DbCourseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Course_Accounts_CourseId_fkey");
         });
-
         modelBuilder.Entity<Excercise>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("Excercises_pkey");

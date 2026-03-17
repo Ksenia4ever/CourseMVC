@@ -59,7 +59,7 @@ namespace CourseInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Create([Bind("Name,Email,Id")] Account account)
         {
             if (ModelState.IsValid)
             {
@@ -91,7 +91,7 @@ namespace CourseInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Account account)
+        public async Task<IActionResult> Edit(int id, [Bind("Name,Email,Id")] Account account)
         {
             if (id != account.Id)
             {

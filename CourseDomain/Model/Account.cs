@@ -10,6 +10,11 @@ public partial class Account : Entity
     [Display(Name = "Ім'я")]
     public string Name { get; set; } = null!;
 
+    [Required(ErrorMessage = "Поле не повинно бути порожнім")]
+    [EmailAddress(ErrorMessage = "Введіть коректну email-адресу")]
+    [Display(Name = "Електронна пошта")]
+    public string Email { get; set; } = null!;
+
     public virtual ICollection<AccountScourse> AccountScourses { get; set; } = new List<AccountScourse>();
 
     public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
