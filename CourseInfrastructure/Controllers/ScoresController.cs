@@ -10,6 +10,7 @@ using CourseInfrastructure;
 
 namespace CourseInfrastructure.Controllers
 {
+    [SessionAuthorize]
     public class ScoresController : Controller
     {
         private readonly DbCourseContext _context;

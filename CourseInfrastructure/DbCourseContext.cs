@@ -40,7 +40,7 @@ public partial class DbCourseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("Accounts_pkey");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).UseIdentityColumn();
 
             entity.Property(e => e.Email)
                 .HasColumnName("Email");

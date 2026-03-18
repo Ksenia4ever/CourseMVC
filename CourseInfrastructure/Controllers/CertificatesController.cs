@@ -10,6 +10,7 @@ using CourseInfrastructure;
 
 namespace CourseInfrastructure.Controllers
 {
+    [SessionAuthorize]
     public class CertificatesController : Controller
     {
         private readonly DbCourseContext _context;

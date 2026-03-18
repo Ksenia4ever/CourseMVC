@@ -20,38 +20,23 @@ namespace CourseInfrastructure.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        public IActionResult AdminStats()
-        {
-            return View();
-        }
-
-        public IActionResult Login()
-        {
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email)
+        public async Task<IActionResult> Login(string name, string email)
         {
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error = "Введіть електронну пошту.";
-                return View();
+                TempData["LoginError"] = "Введіть ім'я користувача та електронну пошту.";
+                return RedirectToAction(nameof(Index));
             }
 
             var account = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.Email == email);
+                .FirstOrDefaultAsync(a => a.Name == name && a.Email == email);
 
             if (account == null)
             {
-                ViewBag.Error = "Акаунт з такою поштою не знайдено.";
-                return View();
+                TempData["LoginError"] = "Неправильне ім'я користувача або електронна пошта.";
+                return RedirectToAction(nameof(Index));
             }
 
             HttpContext.Session.SetInt32("CurrentAccountId", account.Id);
@@ -61,13 +46,42 @@ namespace CourseInfrastructure.Controllers
             return RedirectToAction("Index", "Courses");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult StayLoggedIn()
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetLogin()
+        {
+            HttpContext.Session.Remove("CurrentAccountId");
+            HttpContext.Session.Remove("CurrentAccountEmail");
+            HttpContext.Session.Remove("CurrentAccountName");
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("CurrentAccountId");
             HttpContext.Session.Remove("CurrentAccountEmail");
             HttpContext.Session.Remove("CurrentAccountName");
 
-            return RedirectToAction(nameof(Login));
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [SessionAuthorize]
+        public IActionResult AdminStats()
+        {
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -21,12 +21,14 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Accounts
+        [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Accounts.ToListAsync());
         }
 
         // GET: Accounts/Details/5
+        [SessionAuthorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -59,18 +61,25 @@ namespace CourseInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email,Id")] Account account)
+        public async Task<IActionResult> Create([Bind("Name,Email")] Account account)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(account);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                HttpContext.Session.SetInt32("CurrentAccountId", account.Id);
+                HttpContext.Session.SetString("CurrentAccountEmail", account.Email);
+                HttpContext.Session.SetString("CurrentAccountName", account.Name);
+
+                return RedirectToAction("Index", "Courses");
             }
+
             return View(account);
         }
 
         // GET: Accounts/Edit/5
+        [SessionAuthorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -91,6 +100,7 @@ namespace CourseInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [SessionAuthorize]
         public async Task<IActionResult> Edit(int id, [Bind("Name,Email,Id")] Account account)
         {
             if (id != account.Id)
@@ -122,6 +132,7 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Accounts/Delete/5
+        [SessionAuthorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -142,6 +153,7 @@ namespace CourseInfrastructure.Controllers
         // POST: Accounts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [SessionAuthorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var account = await _context.Accounts.FindAsync(id);

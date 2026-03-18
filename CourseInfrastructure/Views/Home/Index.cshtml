@@ -1,8 +1,67 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Головна";
+    var currentAccountName = Context.Session.GetString("CurrentAccountName");
+    var currentAccountEmail = Context.Session.GetString("CurrentAccountEmail");
 }
 
-<div class="text-center">
+<div class="text-center mb-5">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>Система курсів. Увійдіть у свій акаунт або зареєструйтесь.</p>
 </div>
+
+@if (TempData["LoginError"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["LoginError"]
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(currentAccountName))
+{
+    <div class="alert alert-success">
+        Ви увійшли як <strong>@currentAccountName</strong> (@currentAccountEmail)
+    </div>
+
+    <div class="mb-4">
+        <p><strong>Ви хочете вийти з акаунта?</strong></p>
+
+        <form asp-controller="Home" asp-action="ResetLogin" method="post" style="display:inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-success me-2">Так</button>
+        </form>
+
+        <form asp-controller="Home" asp-action="StayLoggedIn" method="post" style="display:inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-secondary">Ні</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Sign in</h3>
+            <form asp-controller="Home" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ім'я користувача</label>
+                    <input type="text" name="name" id="name" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Електронна пошта</label>
+                    <input type="email" name="email" id="email" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Sign up</h3>
+            <p>Ще не маєте акаунта?</p>
+            <a asp-controller="Accounts" asp-action="Create" class="btn btn-outline-primary">Sign up</a>
+        </div>
+    </div>
+}

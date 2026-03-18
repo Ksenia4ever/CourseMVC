@@ -10,6 +10,7 @@ using CourseInfrastructure;
 
 namespace CourseInfrastructure.Controllers
 {
+    [SessionAuthorize]
     public class CoursesController : Controller
     {
         private readonly DbCourseContext _context;
@@ -247,7 +248,7 @@ namespace CourseInfrastructure.Controllers
 
             if (accountId == null)
             {
-                return RedirectToAction("Login", "Home");
+                return RedirectToAction("Index", "Home");
             }
 
             var existingSubscription = await _context.CourseAccounts

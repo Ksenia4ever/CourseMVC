@@ -30,16 +30,3 @@ body {
   text-align: start;
 }
 
-.lavender-navbar {
-    background-color: #cdb4db;
-}
-
-    .lavender-navbar .navbar-brand,
-    .lavender-navbar .nav-link {
-        color: white !important;
-    }
-
-        .lavender-navbar .nav-link:hover,
-        .lavender-navbar .navbar-brand:hover {
-            color: #f8f9fa !important;
-        }

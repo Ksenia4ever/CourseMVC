@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CourseInfrastructure;
+using CourseInfrastructure.Controllers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CourseInfrastructure;
 
 namespace CourseMVC.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class ChartsController : ControllerBase
