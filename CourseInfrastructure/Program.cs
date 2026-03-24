@@ -1,5 +1,8 @@
+using CourseDomain.Model;
 using CourseInfrastructure;
+using CourseInfrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using static CourseInfrastructure.Services.IDataPortServiceFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,8 @@ builder.Services.AddSession();
 builder.Services.AddDbContext<DbCourseContext>(option => option.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
+builder.Services.AddScoped<IDataPortServiceFactory<CourseAccount>, CourseSubscriptionDataPortServiceFactory>();
 
 var app = builder.Build();
 

@@ -66,7 +66,6 @@
 </body>
 </html> *@
 
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -74,52 +73,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Лабораторна робота 1. Курси</title>
     <script type="importmap"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrapOrange.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CourseInfrastructure.styles.css" asp-append-version="true" />
+
+    <style>
+            .menu-bold {
+                font-weight: 700;
+            }
+    </style>
 </head>
 <body>
-    @* <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    Лабораторна робота 1. Курси
-                </a>
+    @{
+        var currentAccountName = Context.Session.GetString("CurrentAccountName");
+    }
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Головна</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Courses" asp-action="Index">Курси</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Accounts" asp-action="Index">Акаунти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Certificates" asp-action="Index">Сертифікати</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Excercises" asp-action="Index">Завдання</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Scores" asp-action="Index">Оцінки</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header> *@
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand menu-bold" asp-area="" asp-controller="Home" asp-action="Index">
                     Лабораторна робота 1. Курси
                 </a>
 
@@ -131,26 +108,30 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Головна</a>
+                            <a class="nav-link menu-bold" asp-controller="Home" asp-action="Index">Головна</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Courses" asp-action="Index">Курси</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Accounts" asp-action="Index">Акаунти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Certificates" asp-action="Index">Сертифікати</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Excercises" asp-action="Index">Завдання</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Scores" asp-action="Index">Оцінки</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="AdminStats">Статистика</a>
-                        </li>
+
+                        @if (!string.IsNullOrEmpty(currentAccountName))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Courses" asp-action="Index">Курси</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Accounts" asp-action="Index">Акаунти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Certificates" asp-action="Index">Сертифікати</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Excercises" asp-action="Index">Завдання</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Scores" asp-action="Index">Оцінки</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-bold" asp-controller="Home" asp-action="AdminStats">Статистика</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -169,4 +150,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

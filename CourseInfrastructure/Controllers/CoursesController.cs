@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CourseDomain.Model;
+using CourseInfrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CourseDomain.Model;
-using CourseInfrastructure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using static CourseInfrastructure.Services.IDataPortServiceFactory;
 
 namespace CourseInfrastructure.Controllers
 {
@@ -14,18 +15,17 @@ namespace CourseInfrastructure.Controllers
     public class CoursesController : Controller
     {
         private readonly DbCourseContext _context;
+        private readonly IDataPortServiceFactory<CourseAccount> _dataPortServiceFactory;
 
-        public CoursesController(DbCourseContext context)
+        public CoursesController(
+            DbCourseContext context,
+            IDataPortServiceFactory<CourseAccount> dataPortServiceFactory)
         {
             _context = context;
+            _dataPortServiceFactory = dataPortServiceFactory;
         }
 
         // GET: Courses
-        //public async Task<IActionResult> Index()
-        //{
-        //    var dbCourseContext = _context.Courses.Include(c => c.Author);
-        //    return View(await dbCourseContext.ToListAsync());
-        //}
         public async Task<IActionResult> Index()
         {
             var currentAccountId = HttpContext.Session.GetInt32("CurrentAccountId");
@@ -38,24 +38,8 @@ namespace CourseInfrastructure.Controllers
 
             return View(await dbCourseContext.ToListAsync());
         }
+
         // GET: Courses/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var course = await _context.Courses
-        //        .Include(c => c.Author)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (course == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(course);
-        //}
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -85,21 +69,6 @@ namespace CourseInfrastructure.Controllers
         }
 
         // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(course);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
-        //    return View(course);
-        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,Description,AuthorId,Subject")] Course course)
@@ -131,45 +100,12 @@ namespace CourseInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
             return View(course);
         }
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Title,Description,AuthorId,Subject,Created,Modified,Id")] Course course)
-        //{
-        //    if (id != course.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(course);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!CourseExists(course.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["AuthorId"] = new SelectList(_context.Accounts, "Id", "Name", course.AuthorId);
-        //    return View(course);
-        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,AuthorId,Subject,Created")] Course course)
@@ -199,6 +135,7 @@ namespace CourseInfrastructure.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -217,6 +154,7 @@ namespace CourseInfrastructure.Controllers
             var course = await _context.Courses
                 .Include(c => c.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (course == null)
             {
                 return NotFound();
@@ -240,6 +178,7 @@ namespace CourseInfrastructure.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Courses/ToggleSubscription
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleSubscription(int courseId)
@@ -272,6 +211,52 @@ namespace CourseInfrastructure.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Courses/Import
+        public IActionResult Import()
+        {
+            return View();
+        }
+
+        // POST: Courses/Import
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
+        {
+            if (fileExcel == null || fileExcel.Length == 0)
+            {
+                ModelState.AddModelError("", "Оберіть Excel-файл для імпорту.");
+                return View();
+            }
+
+            var importService = _dataPortServiceFactory.GetImportService(fileExcel.ContentType);
+
+            using var stream = fileExcel.OpenReadStream();
+            await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Courses/Export
+        [HttpGet]
+        public async Task<IActionResult> Export(
+            [FromQuery] string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            CancellationToken cancellationToken = default)
+        {
+            var exportService = _dataPortServiceFactory.GetExportService(contentType);
+
+            var memoryStream = new MemoryStream();
+
+            await exportService.WriteToAsync(memoryStream, cancellationToken);
+
+            await memoryStream.FlushAsync(cancellationToken);
+            memoryStream.Position = 0;
+
+            return new FileStreamResult(memoryStream, contentType)
+            {
+                FileDownloadName = $"course_subscriptions_{DateTime.UtcNow:yyyy-MM-dd}.xlsx"
+            };
         }
 
         private bool CourseExists(int id)

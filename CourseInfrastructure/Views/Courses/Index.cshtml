@@ -9,13 +9,54 @@
         vertical-align: top;
         text-align: left;
     }
+
+    .courses-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .courses-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .rounded-action-btn {
+        border-radius: 20px !important;
+        padding: 8px 18px;
+    }
 </style>
 
 <h1>Курси</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="courses-top-bar">
+    <div>
+        <p>
+            <a asp-action="Create">Create New</a>
+        </p>
+    </div>
+
+    <div class="courses-actions">
+        <a class="btn btn-primary rounded-action-btn"
+               asp-area=""
+               asp-controller="Courses"
+               asp-action="Import">
+            Завантажити дані з файлу
+        </a>
+
+        <a class="btn btn-primary rounded-action-btn"
+               asp-area=""
+               asp-controller="Courses"
+               asp-action="Export">
+            Експортувати дані у файл
+        </a>
+    </div>
+</div>
+
 <table class="table courses-table">
     <thead>
         <tr>
@@ -44,33 +85,35 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Subject)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Modified)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.Name)
-                
-            </td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subject)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author.Name)
+                </td>
                 <td>
                     @{
-                        var currentAccountId = ViewBag.CurrentAccountId != null
+                        int? currentAccountId = ViewBag.CurrentAccountId != null
                             ? (int?)ViewBag.CurrentAccountId
                             : null;
+
                         var isSubscribed = currentAccountId != null &&
+                            item.CourseAccounts != null &&
                             item.CourseAccounts.Any(ca => ca.AccountId == currentAccountId);
                     }
 
@@ -80,13 +123,13 @@
 
                         @if (isSubscribed)
                         {
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger rounded-action-btn">
                                 Ви підписані
                             </button>
                         }
                         else
                         {
-                            <button type="submit" class="btn btn-outline-secondary">
+                            <button type="submit" class="btn btn-outline-secondary rounded-action-btn">
                                 Підписатися
                             </button>
                         }
@@ -97,7 +140,7 @@
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
-        </tr>
-}
+            </tr>
+        }
     </tbody>
 </table>
