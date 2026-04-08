@@ -1,0 +1,115 @@
+﻿@model CourseInfrastructure.ViewModel.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Реєстрація";
+    var courses = ViewBag.Courses as List<CourseDomain.Model.Course>;
+}
+
+<h2>Реєстрація</h2>
+
+<form method="post" asp-controller="Account" asp-action="Register">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PasswordConfirm" class="form-label"></label>
+        <input asp-for="PasswordConfirm" class="form-control" />
+        <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Тип акаунта</label>
+
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   asp-for="SelectedRole"
+                   value="Student"
+                   id="roleStudent" />
+            <label class="form-check-label" for="roleStudent">Учень</label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   asp-for="SelectedRole"
+                   value="Teacher"
+                   id="roleTeacher" />
+            <label class="form-check-label" for="roleTeacher">Вчитель</label>
+        </div>
+
+        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3" id="teacherCoursesBlock" style="display:none;">
+        <label class="form-label">Оберіть курси, які хочете викладати</label>
+
+        @if (courses != null)
+        {
+            @foreach (var course in courses)
+            {
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="SelectedCourseIds"
+                           value="@course.Id"
+                           id="course_@course.Id"
+                    @(Model.SelectedCourseIds.Contains(course.Id) ? "checked" : "") />
+                    <label class="form-check-label" for="course_@course.Id">
+                        @course.Title
+                    </label>
+                </div>
+            }
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зареєструватися</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function toggleTeacherCourses() {
+            const teacherRadio = document.getElementById("roleTeacher");
+            const block = document.getElementById("teacherCoursesBlock");
+
+            if (teacherRadio && teacherRadio.checked) {
+                block.style.display = "block";
+            } else {
+                block.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const studentRadio = document.getElementById("roleStudent");
+            const teacherRadio = document.getElementById("roleTeacher");
+
+            if (studentRadio) studentRadio.addEventListener("change", toggleTeacherCourses);
+            if (teacherRadio) teacherRadio.addEventListener("change", toggleTeacherCourses);
+
+            toggleTeacherCourses();
+        });
+    </script>
+}

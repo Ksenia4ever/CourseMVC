@@ -15,6 +15,13 @@ public partial class Account : Entity
     [Display(Name = "Електронна пошта")]
     public string Email { get; set; } = null!;
 
+    [Display(Name = "Identity User Id")]
+    public string? IdentityUserId { get; set; }
+
+    [Display(Name = "Системне повідомлення")]
+    public string? SystemMessage { get; set; }
+
+    public bool HasUnreadSystemMessage { get; set; }
     public virtual ICollection<AccountScourse> AccountScourses { get; set; } = new List<AccountScourse>();
 
     public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
@@ -22,4 +29,6 @@ public partial class Account : Entity
     public virtual ICollection<CourseAccount> CourseAccounts { get; set; } = new List<CourseAccount>();
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+    public virtual ICollection<TeacherCourse> TeacherCourses { get; set; } = new List<TeacherCourse>();
 }

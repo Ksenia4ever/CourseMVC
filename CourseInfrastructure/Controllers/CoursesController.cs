@@ -1,34 +1,49 @@
 ﻿using CourseDomain.Model;
+using CourseInfrastructure.Models;
 using CourseInfrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using static CourseInfrastructure.Services.IDataPortServiceFactory;
 
 namespace CourseInfrastructure.Controllers
 {
-    [SessionAuthorize]
+    [Authorize(Roles = "Student,Teacher,Admin")]
     public class CoursesController : Controller
     {
         private readonly DbCourseContext _context;
         private readonly IDataPortServiceFactory<CourseAccount> _dataPortServiceFactory;
+        private readonly UserManager<User> _userManager;
 
         public CoursesController(
             DbCourseContext context,
-            IDataPortServiceFactory<CourseAccount> dataPortServiceFactory)
+            IDataPortServiceFactory<CourseAccount> dataPortServiceFactory,
+            UserManager<User> userManager)
         {
             _context = context;
             _dataPortServiceFactory = dataPortServiceFactory;
+            _userManager = userManager;
         }
 
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-            var currentAccountId = HttpContext.Session.GetInt32("CurrentAccountId");
+            var identityUserId = _userManager.GetUserId(User);
+            int? currentAccountId = null;
+
+            if (!string.IsNullOrEmpty(identityUserId))
+            {
+                var currentAccount = await _context.Accounts
+                    .FirstOrDefaultAsync(a => a.IdentityUserId == identityUserId);
+
+                if (currentAccount != null)
+                {
+                    currentAccountId = currentAccount.Id;
+                }
+            }
+
             ViewBag.CurrentAccountId = currentAccountId;
 
             var dbCourseContext = _context.Courses
@@ -130,10 +145,8 @@ namespace CourseInfrastructure.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -183,22 +196,30 @@ namespace CourseInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleSubscription(int courseId)
         {
-            var accountId = HttpContext.Session.GetInt32("CurrentAccountId");
+            var identityUserId = _userManager.GetUserId(User);
 
-            if (accountId == null)
+            if (string.IsNullOrEmpty(identityUserId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.IdentityUserId == identityUserId);
+
+            if (account == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
             var existingSubscription = await _context.CourseAccounts
-                .FirstOrDefaultAsync(ca => ca.CourseId == courseId && ca.AccountId == accountId.Value);
+                .FirstOrDefaultAsync(ca => ca.CourseId == courseId && ca.AccountId == account.Id);
 
             if (existingSubscription == null)
             {
                 var subscription = new CourseAccount
                 {
                     CourseId = courseId,
-                    AccountId = accountId.Value,
+                    AccountId = account.Id,
                     SubscribedAt = DateTime.Now
                 };
 

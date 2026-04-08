@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CourseDomain.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CourseDomain.Model;
-using CourseInfrastructure;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CourseInfrastructure.Controllers
 {
+    [Authorize(Roles = "Student,Teacher,Admin")]
     public class AccountsController : Controller
     {
         private readonly DbCourseContext _context;
@@ -21,14 +16,12 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Accounts
-        [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Accounts.ToListAsync());
         }
 
         // GET: Accounts/Details/5
-        [SessionAuthorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,17 +31,14 @@ namespace CourseInfrastructure.Controllers
 
             var account = await _context.Accounts
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (account == null)
             {
                 return NotFound();
             }
 
-            // return View(account)
             return RedirectToAction("Index", "Certificates", new { id = account.Id, name = account.Name });
-
         }
-
-
 
         // GET: Accounts/Create
         public IActionResult Create()
@@ -57,8 +47,6 @@ namespace CourseInfrastructure.Controllers
         }
 
         // POST: Accounts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Email")] Account account)
@@ -67,19 +55,13 @@ namespace CourseInfrastructure.Controllers
             {
                 _context.Add(account);
                 await _context.SaveChangesAsync();
-
-                HttpContext.Session.SetInt32("CurrentAccountId", account.Id);
-                HttpContext.Session.SetString("CurrentAccountEmail", account.Email);
-                HttpContext.Session.SetString("CurrentAccountName", account.Name);
-
-                return RedirectToAction("Index", "Courses");
+                return RedirectToAction(nameof(Index));
             }
 
             return View(account);
         }
 
         // GET: Accounts/Edit/5
-        [SessionAuthorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -92,15 +74,13 @@ namespace CourseInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             return View(account);
         }
 
         // POST: Accounts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [SessionAuthorize]
         public async Task<IActionResult> Edit(int id, [Bind("Name,Email,Id")] Account account)
         {
             if (id != account.Id)
@@ -121,18 +101,17 @@ namespace CourseInfrastructure.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(account);
         }
 
         // GET: Accounts/Delete/5
-        [SessionAuthorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -142,6 +121,7 @@ namespace CourseInfrastructure.Controllers
 
             var account = await _context.Accounts
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (account == null)
             {
                 return NotFound();
@@ -153,10 +133,10 @@ namespace CourseInfrastructure.Controllers
         // POST: Accounts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [SessionAuthorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var account = await _context.Accounts.FindAsync(id);
+
             if (account != null)
             {
                 _context.Accounts.Remove(account);
@@ -169,6 +149,33 @@ namespace CourseInfrastructure.Controllers
         private bool AccountExists(int id)
         {
             return _context.Accounts.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> MyAccount()
+        {
+            var identityUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(identityUserId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.IdentityUserId == identityUserId);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            var certificates = await _context.Certificates
+                .Where(c => c.AccountId == account.Id)
+                .Include(c => c.Course)
+                .ToListAsync();
+
+            ViewBag.Certificates = certificates;
+
+            return View("Details", account);
         }
     }
 }

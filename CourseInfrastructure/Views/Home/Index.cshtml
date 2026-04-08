@@ -1,67 +1,48 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "Головна";
-    var currentAccountName = Context.Session.GetString("CurrentAccountName");
-    var currentAccountEmail = Context.Session.GetString("CurrentAccountEmail");
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-4">Welcome</h1>
-    <p>Система курсів. Увійдіть у свій акаунт або зареєструйтесь.</p>
+<div class="text-center">
+    <h1 class="display-4">Система курсів</h1>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p>Ви увійшли як <strong>@User.Identity.Name</strong></p>
+
+        <form method="post" asp-controller="Account" asp-action="Logout">
+            @Html.AntiForgeryToken()
+            <input type="submit" value="Вихід" class="btn btn-primary" />
+        </form>
+    }
+    else
+    {
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary me-2">Вхід</a>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">Реєстрація</a>
+    }
 </div>
 
-@if (TempData["LoginError"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["LoginError"]
-    </div>
+ *@
+
+@{
+    ViewData["Title"] = "Головна";
 }
 
-@if (!string.IsNullOrEmpty(currentAccountName))
-{
-    <div class="alert alert-success">
-        Ви увійшли як <strong>@currentAccountName</strong> (@currentAccountEmail)
-    </div>
+<div class="text-center">
+    <h1 class="display-4">Система курсів</h1>
+    <p>Лабораторна робота 1. Керування курсами, сертифікатами та підписками.</p>
 
-    <div class="mb-4">
-        <p><strong>Ви хочете вийти з акаунта?</strong></p>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p>Ви увійшли як <strong>@User.Identity.Name</strong></p>
 
-        <form asp-controller="Home" asp-action="ResetLogin" method="post" style="display:inline;">
+        <form method="post" asp-controller="Account" asp-action="Logout">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-success me-2">Так</button>
+            <input type="submit" value="Вихід" class="btn btn-primary" />
         </form>
-
-        <form asp-controller="Home" asp-action="StayLoggedIn" method="post" style="display:inline;">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-secondary">Ні</button>
-        </form>
-    </div>
-}
-else
-{
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Sign in</h3>
-            <form asp-controller="Home" asp-action="Login" method="post">
-                @Html.AntiForgeryToken()
-
-                <div class="mb-3">
-                    <label for="name" class="form-label">Ім'я користувача</label>
-                    <input type="text" name="name" id="name" class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="email" class="form-label">Електронна пошта</label>
-                    <input type="email" name="email" id="email" class="form-control" />
-                </div>
-
-                <button type="submit" class="btn btn-primary">Sign in</button>
-            </form>
-        </div>
-
-        <div class="col-md-6">
-            <h3>Sign up</h3>
-            <p>Ще не маєте акаунта?</p>
-            <a asp-controller="Accounts" asp-action="Create" class="btn btn-outline-primary">Sign up</a>
-        </div>
-    </div>
-}
+    }
+    else
+    {
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary me-2">Вхід</a>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">Реєстрація</a>
+    }
+</div>

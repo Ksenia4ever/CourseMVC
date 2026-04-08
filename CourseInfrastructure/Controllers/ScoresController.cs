@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CourseDomain.Model;
+using CourseInfrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CourseDomain.Model;
-using CourseInfrastructure;
 
 namespace CourseInfrastructure.Controllers
 {
-    [SessionAuthorize]
+    [Authorize(Roles = "Teacher,Admin")]
     public class ScoresController : Controller
     {
         private readonly DbCourseContext _context;
@@ -38,6 +35,7 @@ namespace CourseInfrastructure.Controllers
             var score = await _context.Scores
                 .Include(s => s.Excersice)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (score == null)
             {
                 return NotFound();
@@ -54,8 +52,6 @@ namespace CourseInfrastructure.Controllers
         }
 
         // POST: Scores/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ExcersiceId,Value,Id")] Score score)
@@ -66,6 +62,7 @@ namespace CourseInfrastructure.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
             return View(score);
         }
@@ -83,13 +80,12 @@ namespace CourseInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
             return View(score);
         }
 
         // POST: Scores/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ExcersiceId,Value,Id")] Score score)
@@ -112,13 +108,13 @@ namespace CourseInfrastructure.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["ExcersiceId"] = new SelectList(_context.Excercises, "Id", "Answer", score.ExcersiceId);
             return View(score);
         }
@@ -134,6 +130,7 @@ namespace CourseInfrastructure.Controllers
             var score = await _context.Scores
                 .Include(s => s.Excersice)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (score == null)
             {
                 return NotFound();
@@ -148,6 +145,7 @@ namespace CourseInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var score = await _context.Scores.FindAsync(id);
+
             if (score != null)
             {
                 _context.Scores.Remove(score);

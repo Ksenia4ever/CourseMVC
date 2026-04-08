@@ -1,14 +1,35 @@
 ﻿@model IEnumerable<CourseDomain.Model.Excercise>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Завдання";
 }
 
-<h1>Index</h1>
+@if (ViewBag.CourseTitle != null)
+{
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1>Завдання курсу</h1>
+            <h4>@ViewBag.CourseTitle</h4>
+        </div>
+        <div>
+            <a asp-controller="Courses"
+                   asp-action="Details"
+                   asp-route-id="@ViewBag.CourseId"
+                   class="btn btn-secondary">
+                Назад до курсу
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <h1>Завдання</h1>
+}
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
@@ -40,38 +61,39 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TaskDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Questions)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AnswerVarients)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Answer)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Modified)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Course.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Questions)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AnswerVarients)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Answer)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Description)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

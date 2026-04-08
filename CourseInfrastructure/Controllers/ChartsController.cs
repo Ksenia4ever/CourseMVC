@@ -1,11 +1,11 @@
 ﻿using CourseInfrastructure;
-using CourseInfrastructure.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CourseMVC.Controllers
+namespace CourseInfrastructure.Controllers
 {
-
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ChartsController : ControllerBase
@@ -16,6 +16,7 @@ namespace CourseMVC.Controllers
         {
             _context = context;
         }
+
         [HttpGet("subscriptionsByMonthForCourse/{courseId}")]
         public async Task<JsonResult> GetSubscriptionsByMonthForCourseAsync(int courseId, CancellationToken cancellationToken)
         {
@@ -34,20 +35,20 @@ namespace CourseMVC.Controllers
 
             var monthNames = new[]
             {
-        "",
-        "січень",
-        "лютий",
-        "березень",
-        "квітень",
-        "травень",
-        "червень",
-        "липень",
-        "серпень",
-        "вересень",
-        "жовтень",
-        "листопад",
-        "грудень"
-    };
+                "",
+                "січень",
+                "лютий",
+                "березень",
+                "квітень",
+                "травень",
+                "червень",
+                "липень",
+                "серпень",
+                "вересень",
+                "жовтень",
+                "листопад",
+                "грудень"
+            };
 
             var formattedResult = result.Select(x => new
             {
@@ -69,11 +70,11 @@ namespace CourseMVC.Controllers
 
             var result = new[]
             {
-        new { label = "Акаунти", count = accountsCount },
-        new { label = "Курси", count = coursesCount },
-        new { label = "Вправи", count = excercisesCount },
-        new { label = "Сертифікати", count = certificatesCount },
-        new { label = "Оцінки", count = scoresCount }
+                new { label = "Акаунти", count = accountsCount },
+                new { label = "Курси", count = coursesCount },
+                new { label = "Вправи", count = excercisesCount },
+                new { label = "Сертифікати", count = certificatesCount },
+                new { label = "Оцінки", count = scoresCount }
             };
 
             return new JsonResult(result);

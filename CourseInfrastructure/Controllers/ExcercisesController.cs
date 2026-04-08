@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CourseDomain.Model;
+using CourseInfrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CourseDomain.Model;
-using CourseInfrastructure;
 
 namespace CourseInfrastructure.Controllers
 {
-    [SessionAuthorize]
+    [Authorize(Roles = "Student,Teacher,Admin")]
     public class ExcercisesController : Controller
     {
         private readonly DbCourseContext _context;
@@ -21,10 +18,22 @@ namespace CourseInfrastructure.Controllers
         }
 
         // GET: Excercises
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? courseId)
         {
-            var dbCourseContext = _context.Excercises.Include(e => e.Course);
-            return View(await dbCourseContext.ToListAsync());
+            var query = _context.Excercises
+                .Include(e => e.Course)
+                .AsQueryable();
+
+            if (courseId.HasValue)
+            {
+                query = query.Where(e => e.CourseId == courseId.Value);
+                ViewBag.CourseId = courseId.Value;
+
+                var course = await _context.Courses.FindAsync(courseId.Value);
+                ViewBag.CourseTitle = course?.Title;
+            }
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Excercises/Details/5
@@ -38,6 +47,7 @@ namespace CourseInfrastructure.Controllers
             var excercise = await _context.Excercises
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (excercise == null)
             {
                 return NotFound();
@@ -54,8 +64,6 @@ namespace CourseInfrastructure.Controllers
         }
 
         // POST: Excercises/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,TaskDescription,Questions,AnswerVarients,Answer,CourseId,Created,Modified,Id")] Excercise excercise)
@@ -66,6 +74,7 @@ namespace CourseInfrastructure.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
             return View(excercise);
         }
@@ -83,13 +92,12 @@ namespace CourseInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
             return View(excercise);
         }
 
         // POST: Excercises/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Title,TaskDescription,Questions,AnswerVarients,Answer,CourseId,Created,Modified,Id")] Excercise excercise)
@@ -112,13 +120,13 @@ namespace CourseInfrastructure.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Description", excercise.CourseId);
             return View(excercise);
         }
@@ -134,6 +142,7 @@ namespace CourseInfrastructure.Controllers
             var excercise = await _context.Excercises
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (excercise == null)
             {
                 return NotFound();
@@ -148,6 +157,7 @@ namespace CourseInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var excercise = await _context.Excercises.FindAsync(id);
+
             if (excercise != null)
             {
                 _context.Excercises.Remove(excercise);

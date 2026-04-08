@@ -1,0 +1,26 @@
+﻿@model CourseDomain.Model.TeacherRequest
+
+@{
+    ViewData["Title"] = "Інформація про заявку";
+}
+
+<h1>Інформація про заявку</h1>
+
+<div class="mb-3">
+    <p><strong>Ім'я:</strong> @Model.Name</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Дата заявки:</strong> @Model.RequestedAt</p>
+    <p><strong>Статус:</strong> @Model.Status</p>
+    <p><strong>Повідомлення:</strong> @Model.AdminMessage</p>
+</div>
+
+<h3>Обрані курси</h3>
+
+<ul>
+    @foreach (var item in Model.TeacherRequestCourses)
+    {
+        <li>@item.Course.Title</li>
+    }
+</ul>
+
+<a asp-action="TeacherRequests" class="btn btn-secondary">Назад</a>

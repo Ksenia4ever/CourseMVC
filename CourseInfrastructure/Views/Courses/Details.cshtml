@@ -173,11 +173,33 @@
     var certificatesWidth = certificates * 300 / maxValue;
 }
 
-<h1>Інформація про курс</h1>
+<style>
+    .course-tasks-btn {
+        border-radius: 18px;
+        padding: 10px 22px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+</style>
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="mb-2">Інформація про курс</h1>
+        <h4 class="mb-0">@Model.Title</h4>
+    </div>
+
+    <div>
+        <a asp-controller="Excercises"
+               asp-action="Index"
+               asp-route-courseId="@Model.Id"
+               class="btn btn-primary course-tasks-btn">
+            Завдання курсу
+        </a>
+    </div>
+</div>
+
+<hr />
 <div>
-    <h4>@Model.Title</h4>
-    <hr />
     <dl class="row">
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Title)

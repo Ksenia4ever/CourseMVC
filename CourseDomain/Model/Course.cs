@@ -37,4 +37,8 @@ public partial class Course : Entity
     public virtual ICollection<CourseAccount> CourseAccounts { get; set; } = new List<CourseAccount>();
 
     public virtual ICollection<Excercise> Excercises { get; set; } = new List<Excercise>();
+
+    public virtual ICollection<TeacherRequestCourse> TeacherRequestCourses { get; set; } = new List<TeacherRequestCourse>();
+
+    public virtual ICollection<TeacherCourse> TeacherCourses { get; set; } = new List<TeacherCourse>();
 }

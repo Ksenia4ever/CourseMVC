@@ -1,0 +1,48 @@
+﻿@model IEnumerable<CourseDomain.Model.TeacherRequest>
+
+@{
+    ViewData["Title"] = "Запроси на вчителя";
+}
+
+<h1>Запроси на вчителя</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ім'я</th>
+            <th>Email</th>
+            <th>Дата заявки</th>
+            <th>Статус</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Email</td>
+                <td>@item.RequestedAt</td>
+                <td>@item.Status</td>
+                <td>
+                    <a asp-action="TeacherRequestInfo" asp-route-id="@item.Id">Інфо</a> |
+
+                    <form asp-action="ApproveTeacherRequest" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link p-0">Прийняти</button>
+                    </form> |
+
+                    <form asp-action="RejectTeacherRequest" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link p-0">Відхилити</button>
+                    </form> |
+
+                    <form asp-action="DeleteTeacherRequest" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link p-0 text-danger">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
